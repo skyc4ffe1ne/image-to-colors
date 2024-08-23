@@ -20,7 +20,7 @@ export default function Toolbar() {
         animate={{
           scale: [1, 1.5, 1],
           width: ["4rem", "4rem", "4rem", "4rem", "37.029rem"],
-          opacity: [1, 1, 0.8, 0.8, 0],
+          opacity: [1, 1, 0.8, 0.8, 0.5],
           borderRadius: ["50%", "50%", "20%", "20%", "0%"],
         }}
         transition={{
