@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from "react"
 import { Clipboard } from "lucide-react"
 
 import Toolbar from "./Toolbar.jsx"
+import Modal from "./Modal.jsx"
 
 export default function Canvas() {
   const [picture, setPicture] = useState(null)
@@ -85,6 +86,7 @@ export default function Canvas() {
 
   }, [picture])
 
+
   return (
     <div className="flex gap-16 mt-20 items-center ">
       <div>
@@ -137,6 +139,9 @@ export default function Canvas() {
       }
 
       <Toolbar />
+      {picture &&
+        <Modal palette={palette} />
+      }
     </div >
 
   )

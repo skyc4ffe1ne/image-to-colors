@@ -1,35 +1,31 @@
 import Button from "./Button.jsx"
-import { motion } from "framer-motion"
 
-const labelColors = ["Primary Colors", "Secondary Colors", "Others Colors", "All Colors"]
-
+const labelColors = [
+  {
+    labelText: "Primary Colors",
+    backgroundLabel: "bg-gray-200",
+    colorLabel: "text-neutral-800"
+  },
+  {
+    labelText: "Secondary Colors",
+    backgroundLabel: "bg-black",
+    colorLabel: "text-gray-200"
+  },
+  {
+    labelText: "All Colors",
+    backgroundLabel: "bg-blue-400",
+    colorLabel: "text-neutral-800"
+  },
+]
 export default function Toolbar() {
-
   return (
     <>
-      {/*  
-      <div className="fixed bottom-8 left-[1/2] min-w-126 h-16 bg-neutral-800 rounded-xl flex items-center justify-between gap-4 px-4">
+      <div className="fixed bottom-8 left-[1/2] min-w-126 h-16 backdrop-blur-md bg-white/30 rounded-xl flex items-center justify-between gap-4 px-4">
         {labelColors.map((el, i) =>
-          <Button key={i}> {el} </Button>
+          <Button key={i} backgroundLabel={el.backgroundLabel} colorLabel={el.colorLabel} type="labelBtn"> {el.labelText} </Button>
         )}
       </div>
 
-    */}
-      <motion.div
-        initial={{ opacity: 1 }}
-        animate={{
-          scale: [1, 1.5, 1],
-          width: ["4rem", "4rem", "4rem", "4rem", "37.029rem"],
-          opacity: [1, 1, 0.8, 0.8, 0.5],
-          borderRadius: ["50%", "50%", "20%", "20%", "0%"],
-        }}
-        transition={{
-          duration: 2,
-          ease: "easeInOut",
-          times: [0, 0.2, 0.5, 0.8, 1],
-        }}
-        className="w-16 h-16 bg-neutral-800 absolute bottom-8 left-[1/2]"
-      />
 
     </>
   )
