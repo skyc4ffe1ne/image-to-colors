@@ -1,5 +1,7 @@
 import { useState } from "react"
 
+import { convertColors } from "./utils/convertColors.js"
+
 import Canvas from "./components/Canvas.jsx"
 import Palette from "./components/Palette.jsx"
 import Toolbar from "./components/Toolbar.jsx"
@@ -8,20 +10,18 @@ function App() {
 
   const [palette, setPalette] = useState([])
   const [showModal, setShowModal] = useState(false)
-  const [typePalette, setTypePalette] = useState(0)
+  const [typePalette, setTypePalette] = useState(undefined)
 
-  function handleShowModal() {
-    setShowModal((s) => !s)
+  function handleShowModal(e) {
+    let activeModal = e.target.dataset.colors
+    setShowModal((sm) => sm = sm === activeModal ? false : activeModal)
   }
 
 
   function handleSetTypePalette(e) {
-    let colorsType = Number(e.target.dataset.colors)
-    //0 -> primary
-    //1 -> secondary
-    //2 -> all
-    console.log(colorsType)
-    setTypePalette((tp) => tp = colorsType)
+    let numberPalette = e.target.dataset.tab
+    let refactorPalette = numberPalette === "0" ? palette.map((el) => el[0]) : convertColors(palette)
+    setTypePalette((tp) => tp = refactorPalette)
   }
 
   return (
@@ -32,9 +32,9 @@ function App() {
         {palette.length ? <Palette palette={palette} /> : ""}
       </div>
 
-      {palette.length ? <Toolbar handleShowModal={handleShowModal} handleSetTypePalette={handleSetTypePalette} /> : ""}
+      {palette.length ? <Toolbar handleShowModal={handleShowModal} /> : ""}
 
-      {showModal && <Modal palette={palette} typePalette={typePalette} />}
+      {showModal && <Modal typePalette={typePalette} showModal={showModal} handleSetTypePalette={handleSetTypePalette} palette={palette} />}
 
     </div>
   )

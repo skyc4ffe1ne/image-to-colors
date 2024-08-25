@@ -17,12 +17,12 @@ const labelColors = [
     colorLabel: "text-neutral-800"
   },
 ]
-export default function Toolbar({ handleShowModal, handleSetTypePalette }) {
+export default function Toolbar({ handleShowModal }) {
   return (
     <>
       <div className="fixed bottom-8 left-[1/2] min-w-126 h-16 backdrop-blur-md bg-white/30 rounded-xl flex items-center justify-between gap-4 px-4">
         {labelColors.map((el, i) =>
-          <Button key={i} backgroundLabel={el.backgroundLabel} colorLabel={el.colorLabel} type="labelBtn" i={i} handleShowModal={handleShowModal} handleSetTypePalette={handleSetTypePalette}> {el.labelText} </Button>
+          <Button key={i} backgroundLabel={el.backgroundLabel} colorLabel={el.colorLabel} type="labelBtn" i={i} handleShowModal={handleShowModal} > {el.labelText} </Button>
         )}
       </div>
 
