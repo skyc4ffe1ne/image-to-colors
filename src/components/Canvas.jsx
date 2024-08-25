@@ -1,49 +1,5 @@
 import { useState, useRef, useEffect } from "react"
-
-
-function handleOnLoad(canvas, approximateColor, img, ctx) {
-
-  const aspectRatio = img.width / img.height
-  const newWidth = canvas.width
-  const newHeigth = canvas.width / aspectRatio
-  canvas.height = newHeigth
-
-  ctx.drawImage(img, 0, 0, newWidth, newHeigth)
-
-  const { data } = ctx.getImageData(0, 0, canvas.width, canvas.height)
-  //data return an Uint8ClampedArray, the value rappresent a rgba color ([26,49,90,255,26,49,90,255....])
-  //rgba(26,49,90,255)
-
-  let colorPalette = {}
-  for (let i = 0; i < data.length; i += 4) {
-    const r = data[i]
-    const g = data[i + 1]
-    const b = data[i + 2]
-
-    const approxColor = approximateColor(r, g, b);
-
-    colorPalette[approxColor] = (colorPalette[approxColor] || 0) + 1
-    //[0,0,0] : 0
-    //[0,0,0] : 0 + 1
-    //[0,0,0] : 1 + 1
-  }
-
-  const sortedColors = Object.entries(colorPalette).sort((a, b) => b[1] - a[1]);
-  //Object.entries return ["rgb(0,0,0)", "832"] sort only the first index
-
-  let mostUsedColors = sortedColors.splice(0, 11)
-
-  for (let i = 0; i < mostUsedColors.length; i++) {
-    mostUsedColors[i] = { ...mostUsedColors[i] }
-  }
-
-  return mostUsedColors
-
-
-}
-
-
-
+import { handleOnLoad } from ".././utils/handleOnLoad"
 export default function Canvas({ setPalette }) {
 
   const [picture, setPicture] = useState(null)
@@ -55,15 +11,6 @@ export default function Canvas({ setPalette }) {
     const input = inputRef.current
     setPicture((p) => p = input.files[0])
   }
-
-  function roundColorValue(value, interval) {
-    return Math.round(value / interval) * interval;
-  }
-
-  function approximateColor(r, g, b, interval = 6) {
-    return `rgb(${roundColorValue(r, interval)}, ${roundColorValue(g, interval)}, ${roundColorValue(b, interval)})`;
-  }
-
 
   function handleDrop(e) {
     setPicture((p) => p = e.dataTransfer.files[0])
@@ -84,7 +31,7 @@ export default function Canvas({ setPalette }) {
       img.src = URL.createObjectURL(picture)
 
       img.onload = () => {
-        let mostUsedColors = handleOnLoad(canvas, approximateColor, img, ctx)
+        let mostUsedColors = handleOnLoad(canvas, img, ctx)
         setPalette((p) => p = mostUsedColors)
       }
     }
