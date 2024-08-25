@@ -1,17 +1,26 @@
-const regex = /(?<=\().+,.+,.+(?=\))/gm
+const regex = /(?<=\().+,.+,.+(?=\))/gm;
+const regexSpace = /\s/gm;
+
+let newPaletteArr = [];
 
 export const convertColors = function(palette) {
-  let newPaletteHex = {}
-  let restDivision = []
-  const onlyRgb = palette.map(el => el[0])
+  const onlyRgb = palette.map(el => el[0]);
 
   let scomposeRgb = onlyRgb.map((el) => {
     return el.match(regex).join("")
-  })
+  });
 
-  for (let i = 0; i < onlyRgb.length; i++) {
-    let actualNumber = onlyRgb[i].split(",")
-    if (actualNumber < 9) 
-  }
+  newPaletteArr = scomposeRgb.map((el) => {
+    const rgbArray = el.replace(regexSpace, "").split(",");
 
-}
+    const hexColor = rgbArray.map((value) => {
+      let hex = parseInt(value).toString(16);
+      return hex.length === 1 ? "0" + hex : hex;
+    }).join("");
+
+    return `#${hexColor}`;
+  });
+
+  return newPaletteArr
+};
+

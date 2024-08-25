@@ -22,7 +22,7 @@ export default function Canvas() {
     return Math.round(value / interval) * interval;
   }
 
-  function approximateColor(r, g, b, interval = 64) {
+  function approximateColor(r, g, b, interval = 6) {
     return `rgb(${roundColorValue(r, interval)}, ${roundColorValue(g, interval)}, ${roundColorValue(b, interval)})`;
   }
 
