@@ -27,7 +27,8 @@ export const handleOnLoad = function(canvas, img, ctx) {
   const sortedColors = Object.entries(colorPalette).sort((a, b) => b[1] - a[1]);
   //Object.entries return ["rgb(0,0,0)", "832"] sort only the first index
 
-  let mostUsedColors = sortedColors.splice(0, 11)
+  let mostUsedColors = sortedColors.splice(0, 10)
+  console.log(mostUsedColors.length)
 
   for (let i = 0; i < mostUsedColors.length; i++) {
     mostUsedColors[i] = { ...mostUsedColors[i] }
