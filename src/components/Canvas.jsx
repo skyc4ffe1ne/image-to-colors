@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react"
 import { handleOnLoad } from ".././utils/handleOnLoad"
+
 export default function Canvas({ setPalette }) {
 
   const [picture, setPicture] = useState(null)
@@ -9,12 +10,15 @@ export default function Canvas({ setPalette }) {
 
   function handleFile() {
     const input = inputRef.current
+
     setPicture((p) => p = input.files[0])
   }
 
   function handleDrop(e) {
+    console.log(e.dataTransfer.files)
     setPicture((p) => p = e.dataTransfer.files[0])
   }
+
 
 
   useEffect(function() {
@@ -29,7 +33,7 @@ export default function Canvas({ setPalette }) {
     if (picture) {
       const img = new Image()
       img.src = URL.createObjectURL(picture)
-
+      console.log(URL.createObjectURL(picture))
       img.onload = () => {
         let mostUsedColors = handleOnLoad(canvas, img, ctx)
         setPalette((p) => p = mostUsedColors)

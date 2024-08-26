@@ -24,6 +24,7 @@ export const handleOnLoad = function(canvas, img, ctx) {
     //[0,0,0] : 1 + 1
   }
 
+
   const sortedColors = Object.entries(colorPalette).sort((a, b) => b[1] - a[1]);
   //Object.entries return ["rgb(0,0,0)", "832"] sort only the first index
 
@@ -33,7 +34,6 @@ export const handleOnLoad = function(canvas, img, ctx) {
   for (let i = 0; i < mostUsedColors.length; i++) {
     mostUsedColors[i] = { ...mostUsedColors[i] }
   }
-
   return mostUsedColors
 }
 
@@ -42,7 +42,7 @@ const roundColorValue = function(value, interval) {
   return Math.round(value / interval) * interval;
 }
 
-const approximateColor = function(r, g, b, interval = 6) {
+const approximateColor = function(r, g, b, interval = 64) {
   return `rgb(${roundColorValue(r, interval)}, ${roundColorValue(g, interval)}, ${roundColorValue(b, interval)})`;
 }
 

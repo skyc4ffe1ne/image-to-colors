@@ -1,9 +1,24 @@
+import { useRef, useEffect } from "react"
 import Button from "./Button.jsx"
 import ActiveTab from "./ActiveTab.jsx"
 
 const labelModal = ["Rgb", "Hex"]
 
-export default function Modal({ typePalette, showModal, handleSetTypePalette, palette }) {
+export default function Modal({ typePalette, showModal, handleSetTypePalette, palette, handleShowModal, toolbarRef }) {
+  const modalRef = useRef(null)
+
+  useEffect(function() {
+    function handleClickOutside(e) {
+      if (modalRef.current && !modalRef.current.contains(e.target) && !toolbarRef.current.contains(e.target)) {
+        handleShowModal(false)
+      }
+    }
+
+    document.addEventListener('click', handleClickOutside)
+
+    return () => document.removeEventListener('click', handleClickOutside)
+  }, [showModal])
+
   //palette fallback.
   const activePalette = typePalette || (palette.map((el) => el[0]));
 
@@ -18,8 +33,13 @@ export default function Modal({ typePalette, showModal, handleSetTypePalette, pa
     }
     await navigator.clipboard.writeText(paletteString)
   }
+
+
+
+
+
   return (
-    <div className="p-4 border backdrop-blur-3xl bg-white/30 rounded-lg border-neutral-800 absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 min-w-[50vw]">
+    <div className="p-4 border backdrop-blur-3xl bg-white/30 rounded-lg border-neutral-800 absolute top-1/2 left-1/2 -translate-y-1/2 -translate-x-1/2 min-w-[50vw]" ref={modalRef}>
       <header className="flex items-center gap-2 mb-6">
         {labelModal.map((el, i) =>
           <Button type="modalBtn" key={i} i={i} handleSetTypePalette={handleSetTypePalette}>
@@ -38,7 +58,6 @@ export default function Modal({ typePalette, showModal, handleSetTypePalette, pa
           </button>
         </div>
         <div className="flex flex-col gap-2">
-
           {showModal === "0" && activePalette.map((el, i) => i < 5 ? <ActiveTab key={i} i={i} el={el} /> : "")}
           {showModal === "1" && activePalette.map((el, i) => i >= 5 ? <ActiveTab key={i} i={i} el={el} /> : "")}
           {showModal === "2" && activePalette.map((el, i) => <ActiveTab key={i} i={i} el={el} />)}
