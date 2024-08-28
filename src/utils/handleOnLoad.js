@@ -39,10 +39,10 @@ export const handleOnLoad = function(canvas, img, ctx) {
 
 
 const roundColorValue = function(value, interval) {
-  return Math.round(value / interval) * interval;
+  return Math.floor(value / interval) * interval;
 }
 
-const approximateColor = function(r, g, b, interval = 64) {
+const approximateColor = function(r, g, b, interval = 16) {
   return `rgb(${roundColorValue(r, interval)}, ${roundColorValue(g, interval)}, ${roundColorValue(b, interval)})`;
 }
 
