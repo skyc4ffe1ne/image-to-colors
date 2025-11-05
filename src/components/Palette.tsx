@@ -21,10 +21,10 @@ function Copy(props: React.SVGProps<SVGSVGElement>) {
   );
 }
 
-export default function Palette({ palette }: PaletteProps) {
+export default function Palette({ palette, customPalette }: PaletteProps) {
   return (
     <div className="flex flex-col">
-      <div className="mb-8 border p-4 border-border rounded-xl bg-secondary text-secondary-foreground">
+      <div className="mb-8 border p-4 border-border rounded-xl bg-secondary text-secondary-foreground w-fit">
         <header className="mb-4 flex justify-between items-center">
           <h3 className="text-2xl "> Primary Colors</h3>
           <Button type="inherit" size="icon">
@@ -46,7 +46,7 @@ export default function Palette({ palette }: PaletteProps) {
         </div>
       </div>
 
-      <div className="mb-8 border p-4 border-border rounded-xl bg-secondary text-secondary-foreground">
+      <div className="mb-8 border p-4 border-border rounded-xl bg-secondary text-secondary-foreground w-fit">
         <header className="mb-4 flex justify-between items-center">
           <h3 className="text-2xl "> Secondary Colors</h3>
           <Button type="inherit" size="icon">
@@ -65,6 +65,24 @@ export default function Palette({ palette }: PaletteProps) {
               ""
             ),
           )}
+        </div>
+      </div>
+
+      <div className="mb-8 border p-4 border-border rounded-xl bg-secondary text-secondary-foreground w-fit">
+        <header className="mb-4 flex justify-between items-center">
+          <h3 className="text-2xl "> Custom colors</h3>
+          <Button type="inherit" size="icon">
+            <Copy className="size-5" />
+          </Button>
+        </header>
+        <div className="flex gap-4 bg-background/30 shadow-sm px-8 py-4 rounded-2xl ">
+          {customPalette.map((el, i) => (
+            <div
+              key={i}
+              style={{ backgroundColor: `rgb(${el})` }}
+              className="rounded-full size-12 inset-ring inset-ring-white/10"
+            ></div>
+          ))}
         </div>
       </div>
     </div>

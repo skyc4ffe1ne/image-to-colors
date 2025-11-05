@@ -12,10 +12,15 @@ export interface Palette {
 
 export interface PaletteProps {
   palette: Palette[];
+  customPalette: string[];
 }
 
 export type Theme = "light" | "dark";
 export interface ThemeProviderProps {
   theme: Theme;
   setTheme: (t: Theme) => void;
+}
+
+export interface CanvasProps {
+  setPalette: (p: Palette[]) => void;
 }

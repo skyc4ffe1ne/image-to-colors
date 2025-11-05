@@ -5,14 +5,13 @@ const ThemeContext = createContext<undefined | ThemeProviderProps>(undefined);
 
 function getTheme(): Theme {
   let userTheme = localStorage.getItem("theme");
-  if (userTheme !== null) {
+  if (userTheme !== undefined && userTheme) {
     let userTheme_j = JSON.parse(userTheme);
     return userTheme_j;
-  } else if (window.matchMedia("color-scheme:dark").matches) {
+  } else if (window.matchMedia("(prefer-color-scheme:dark)").matches) {
     return "dark";
-  } else {
-    return "light";
   }
+  return "light";
 }
 
 export const ThemeProvider = ({ children }: { children: React.ReactNode }) => {
