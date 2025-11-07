@@ -14,14 +14,20 @@
 
 ## Ui
 
-- [ ] Add minimal animations
-  - [ ] on copy btn
+- [x] Add minimal animations
+  - [x] on copy btn
 
 - Colore palette
-  - [ ] Hover , show the color
-  - [ ] Click colore palette, copy only that color
+  - [x] Hover , show the color
+  - [x] Click colore palette, copy only that color
 
-- [ ] Add toast when copy is successfull, and when is not
+- [x] Add toast when copy is successfull, and when is not
 
-- [ ] Hover effect only highlight the part of the button
+- [x] Hover effect only highlight the part of the button
       i'm with the piinter on it
+
+- [ ] Placeholder canvasColorPalette
+
+---
+
+- Should i use requestAnimationFrame???

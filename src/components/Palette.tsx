@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import type { PaletteProps } from "../lib/types";
 import Button from "./Button";
 
-function ButtonCopy({ paletteType, palette, customPalette }) {
+function ButtonCopy({ paletteType, palette }) {
   const [copy, setCopy] = useState<boolean>(false);
 
   useEffect(() => {
@@ -28,7 +28,7 @@ function ButtonCopy({ paletteType, palette, customPalette }) {
         break;
 
       case "custom":
-        paletteString = customPalette.join("\n");
+        paletteString = palette.join("\n");
         break;
     }
 
@@ -57,93 +57,66 @@ function ButtonCopy({ paletteType, palette, customPalette }) {
   );
 }
 
+function PaletteSection({ title, palette, handleSingleCopy, paletteType }) {
+  return (
+    <div className="border-border bg-secondary text-secondary-foreground mb-8 w-fit rounded-xl border p-2 sm:p-4">
+      <header className="mb-2 flex items-center justify-between sm:mb-4">
+        <h3 className="text-base sm:text-2xl"> {title}</h3>
+        <ButtonCopy paletteType={paletteType} palette={palette} />
+      </header>
+      <div className="bg-background/30 flex gap-4 rounded-2xl px-4 py-2 shadow-sm sm:px-8 sm:py-4">
+        {palette.map((color, i) => (
+          <div
+            key={i}
+            style={{ backgroundColor: color }}
+            className="group relative size-9 rounded-full inset-ring inset-ring-white/10 sm:size-12"
+            onClick={() => handleSingleCopy(color)}
+          >
+            <p className="bg-background/5 absolute -top-7 left-1/2 z-100 hidden -translate-x-1/2 rounded-md px-2 py-1 font-mono text-xs whitespace-nowrap shadow-md transition-all duration-100 ease-in group-hover:block starting:-top-4 starting:opacity-0">
+              {color}
+            </p>
+            <Copy className="absolute top-1/2 left-1/2 z-100 hidden size-5 -translate-x-1/2 -translate-y-1/2 scale-100 opacity-100 mix-blend-difference invert-100 transition-[scale,opacity] duration-75 ease-in group-hover:block starting:scale-75 starting:opacity-0" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function Palette({ palette, customPalette }: PaletteProps) {
-  console.log("palette:", palette);
+  const [singleCopy, setSingleCopy] = useState<boolean>(false);
 
   async function handleSingleCopy(color: string) {
     try {
       await navigator.clipboard.writeText(color);
-      setCopy(true);
+      setSingleCopy(true);
     } catch (error) {
-      setCopy(false);
       console.error(error.message);
+      setSingleCopy(false);
     }
   }
   return (
-    <div className="grid grid-cols-[repeat(auto-fill,minmax(0,402px))] gap-x-4 xl:grid-cols-1 xl:gap-x-0">
-      <div className="border-border bg-secondary text-secondary-foreground mb-8 w-fit rounded-xl border p-4">
-        <header className="mb-4 flex items-center justify-between">
-          <h3 className="text-2xl"> Primary Colors</h3>
-          <ButtonCopy
-            paletteType="primary"
-            palette={palette}
-            customPalette={customPalette}
-          />
-        </header>
-        <div className="bg-background/30 flex gap-4 rounded-2xl px-8 py-4 shadow-sm">
-          {palette.map((el, i) =>
-            i < 5 ? (
-              <div
-                key={i}
-                style={{ backgroundColor: el.color }}
-                className="group relative size-12 rounded-full inset-ring inset-ring-white/10"
-                onClick={() => handleSingleCopy(el.color)}
-              >
-                <p className="bg-background/5 absolute -top-7 left-1/2 z-100 hidden -translate-x-1/2 rounded-md px-2 py-1 font-mono text-xs whitespace-nowrap shadow-md transition-all duration-100 ease-in group-hover:block starting:-top-4 starting:opacity-0">
-                  {el.color}
-                </p>
-                <Copy className="absolute top-1/2 left-1/2 z-100 hidden size-5 -translate-x-1/2 -translate-y-1/2 scale-100 opacity-100 invert-100 transition-[scale,opacity] duration-75 ease-in group-hover:block starting:scale-75 starting:opacity-0" />
-              </div>
-            ) : (
-              ""
-            ),
-          )}
-        </div>
-      </div>
+    <div className="grid grid-cols-[repeat(auto-fill,minmax(0,402px))] gap-x-4 xl:gap-x-0">
+      <PaletteSection
+        title="Primary Colors"
+        palette={palette.slice(0, 5)}
+        handleSingleCopy={handleSingleCopy}
+        paletteType="primary"
+      />
 
-      <div className="border-border bg-secondary text-secondary-foreground mb-8 w-fit rounded-xl border p-4">
-        <header className="mb-4 flex items-center justify-between">
-          <h3 className="text-2xl"> Secondary Colors</h3>
-          <ButtonCopy
-            paletteType="secondary"
-            palette={palette}
-            customPalette={customPalette}
-          />
-        </header>
-        <div className="bg-background/30 flex gap-4 rounded-2xl px-8 py-4 shadow-sm">
-          {palette.map((el, i) =>
-            i >= 5 ? (
-              <div
-                key={i}
-                style={{ backgroundColor: el.color }}
-                className="group relative size-12 rounded-full inset-ring inset-ring-white/10"
-              ></div>
-            ) : (
-              ""
-            ),
-          )}
-        </div>
-      </div>
+      <PaletteSection
+        title="Secondary Colors"
+        palette={palette.slice(5)}
+        handleSingleCopy={handleSingleCopy}
+        paletteType="secondary"
+      />
 
-      <div className="border-border bg-secondary text-secondary-foreground mb-8 w-fit rounded-xl border p-4">
-        <header className="mb-4 flex items-center justify-between">
-          <h3 className="text-2xl"> Custom colors</h3>
-          <ButtonCopy
-            paletteType="custom"
-            palette={palette}
-            customPalette={customPalette}
-          />
-        </header>
-        <div className="bg-background/30 flex gap-4 rounded-2xl px-8 py-4 shadow-sm">
-          {customPalette.map((el, i) => (
-            <div
-              key={i}
-              style={{ backgroundColor: `rgb(${el})` }}
-              className="size-12 rounded-full inset-ring inset-ring-white/10"
-            ></div>
-          ))}
-        </div>
-      </div>
+      <PaletteSection
+        title="Custom Colors"
+        palette={customPalette}
+        handleSingleCopy={handleSingleCopy}
+        paletteType="custom"
+      />
     </div>
   );
 }

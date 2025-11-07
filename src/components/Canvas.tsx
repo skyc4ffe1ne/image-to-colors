@@ -2,13 +2,19 @@ import type { CanvasProps } from "../lib/types";
 import { useState, useRef, useEffect } from "react";
 import { handleOnLoad } from ".././utils/handleOnLoad";
 import Button from "./Button";
-import { createSquarePicker } from "../utils/utils";
 
 const POINTER_SIZE = 48;
 
+type RandomPoints = {
+  x: number;
+  y: number;
+  ref: React.RefObject<HTMLDivElement | null>;
+  color: string;
+};
+
 export default function Canvas({ setPalette, setCustomPalette }: CanvasProps) {
-  const [picture, setPicture] = useState(null);
-  const [randomPoints, setRandomPoints] = useState([]);
+  const [picture, setPicture] = useState<null | File>(null);
+  const [randomPoints, setRandomPoints] = useState<RandomPoints[]>([]);
   const [flagActivePoint, setFlagActivePoint] = useState<boolean>(false);
 
   let inputRef = useRef<null | HTMLInputElement>(null);
@@ -25,6 +31,10 @@ export default function Canvas({ setPalette, setCustomPalette }: CanvasProps) {
   let pickedColorRef_3 = useRef<null | HTMLDivElement>(null);
   let pickedColorRef_4 = useRef<null | HTMLDivElement>(null);
 
+  let rColorRef = useRef<null | HTMLLIElement>(null);
+  let gColorRef = useRef<null | HTMLLIElement>(null);
+  let bColorRef = useRef<null | HTMLLIElement>(null);
+
   let buttonRef = useRef<null | HTMLButtonElement>(null);
 
   // Using the on click on the button,
@@ -37,17 +47,34 @@ export default function Canvas({ setPalette, setCustomPalette }: CanvasProps) {
   function handleFile() {
     if (inputRef.current === null) return;
     const input = inputRef.current;
-    setPicture((p) => (p = input.files[0]));
+
+    console.log("input__files:", input.files);
+    if (!input || !input.files || !input.files.length) return;
+    setPicture(input.files[0]);
   }
 
-  function handleDrop(e) {
+  function handleDrop(e: React.DragEvent<HTMLDivElement>) {
     setPicture((p) => (p = e.dataTransfer.files[0]));
   }
 
   ////////////////////////
+  // Example
+  ///////////////////////
+  // const testPalette = document.createElement("div");
+  //
+  // testPalette.style.position = "absolute";
+  // testPalette.style.zIndex = "999";
+  // testPalette.style.background = "blue";
+  // testPalette.style.width = "10px";
+  // testPalette.style.height = "10px";
+  // testPalette.classList.add("testPalette");
+
+  ////////////////////////
   // UTILS
   ///////////////////////
-  function chooseRef(idx: 0 | 1 | 2 | 3 | 4) {
+  function chooseRef(
+    idx: 0 | 1 | 2 | 3 | 4,
+  ): React.RefObject<HTMLDivElement | null> {
     switch (idx) {
       case 0:
         return pickedColorRef_0;
@@ -62,27 +89,6 @@ export default function Canvas({ setPalette, setCustomPalette }: CanvasProps) {
     }
   }
 
-  function getColor(pX: number, pY: number) {
-    let { data } = ctxRef.current.getImageData(pX, pY, 1, 1);
-    const onlyRGB = data.slice(0, 3);
-    return onlyRGB.join(",");
-  }
-
-  function pickColor(e: MouseEvent) {
-    if (
-      ctxColorRef.current === null ||
-      canvasColorRef.current === null ||
-      flagActivePoint === false ||
-      ctxRef.current === null
-    )
-      return;
-    let pX = e.offsetX;
-    let pY = e.offsetY;
-    let imageData = ctxRef.current.getImageData(pX - 24, pY - 24, 48, 48);
-    ctxColorRef.current.putImageData(imageData, 0, 0);
-    createSquarePicker(canvasColorRef.current, ctxColorRef.current);
-  }
-
   // Initialize Canvas
   // and spread it globally
   useEffect(() => {
@@ -92,8 +98,7 @@ export default function Canvas({ setPalette, setCustomPalette }: CanvasProps) {
     ctxRef.current = ctx;
   }, []);
 
-  // Initialize CanvasColor
-  // and spread it globally
+  // Initialize CanvasColor and spread it globally
   useEffect(() => {
     if (canvasColorRef.current === null) return;
     const canvasColor = canvasColorRef.current;
@@ -119,11 +124,13 @@ export default function Canvas({ setPalette, setCustomPalette }: CanvasProps) {
         let pX = Math.floor(Math.random() * (canvas.width - POINTER_SIZE / 2));
         let pY = Math.floor(Math.random() * (canvas.height - POINTER_SIZE / 2));
         let choosedRef = chooseRef(idx);
-        let color = getColor(pX, pY);
+        let { data } = ctx.getImageData(pX, pY, 1, 1);
+        const onlyRGB = data.slice(0, 3);
+        let color = onlyRGB.join(",");
         return { x: pX, y: pY, ref: choosedRef, color };
       });
       setRandomPoints(randomPoints);
-      setCustomPalette((cp) => (cp = randomPoints.map((el) => el.color)));
+      setCustomPalette(randomPoints.map((el) => `rgb(${el.color})`));
     }
 
     if (picture) {
@@ -140,27 +147,19 @@ export default function Canvas({ setPalette, setCustomPalette }: CanvasProps) {
   useEffect(() => {
     function activePoint(e: MouseEvent) {
       if (e.target && e.target.id && e.target.id.match("palette")) {
+        // Remove the previous one
+        document.querySelector(".active")?.classList.remove("active");
         const activePointID = e.target.id;
         document.querySelector("#" + activePointID)?.classList.add("active");
         setFlagActivePoint(true);
       }
     }
-
     window.addEventListener("mousedown", activePoint);
 
     return () => {
       window.removeEventListener("mousedown", activePoint);
     };
   }, []);
-
-  // const testPalette = document.createElement("div");
-  //
-  // testPalette.style.position = "absolute";
-  // testPalette.style.zIndex = "999";
-  // testPalette.style.background = "blue";
-  // testPalette.style.width = "1px";
-  // testPalette.style.height = "1px";
-  // testPalette.classList.add("testPalette");
 
   useEffect(() => {
     if (
@@ -173,11 +172,60 @@ export default function Canvas({ setPalette, setCustomPalette }: CanvasProps) {
     const ctx = ctxRef.current;
     const activePointer = document.querySelector(".active");
 
-    function handleMovement(e) {
+    function handleMovement(e: MouseEvent) {
       const pX = e.offsetX;
       const pY = e.offsetY;
       activePointer.style.left = pX - POINTER_SIZE / 2 + "px";
       activePointer.style.top = pY - POINTER_SIZE / 2 + "px";
+    }
+
+    function pickColor(e: MouseEvent) {
+      if (canvasColorRef.current === null || ctxColorRef.current === null)
+        return;
+      const ctxColor = ctxColorRef.current;
+      let pX = e.offsetX;
+      let pY = e.offsetY;
+      let imageData = ctx.getImageData(
+        pX - POINTER_SIZE / 2,
+        pY - POINTER_SIZE / 2,
+        48,
+        48,
+      );
+
+      let { data: rgba } = ctx.getImageData(
+        pX - POINTER_SIZE / 2,
+        pY - POINTER_SIZE / 2,
+        1,
+        1,
+      );
+      const onlyRGB = rgba.slice(0, 3);
+      const colorPicked = onlyRGB.join(",");
+
+      rColorRef.current.textContent = "R:" + rgba[0];
+      gColorRef.current.textContent = "B:" + rgba[1];
+      bColorRef.current.textContent = "G:" + rgba[2];
+
+      ctxColor.putImageData(imageData, 0, 0);
+
+      // Create and center the square
+      const width = 10;
+      const height = 10;
+      const color = "white";
+      const borderColor = "black";
+      const borderSize = 1;
+
+      let squareX = canvasColorRef.current.width / 2 - width / 2;
+      let squareY = canvasColorRef.current.height / 2 - height / 2;
+
+      ctxColor.strokeStyle = borderColor;
+      ctxColor.strokeRect(
+        squareX + borderSize,
+        squareY + borderSize,
+        width,
+        height,
+      );
+      ctxColor.strokeStyle = color;
+      ctxColor.strokeRect(squareX, squareY, width, height);
     }
 
     // Handle mouse uo event,
@@ -192,10 +240,6 @@ export default function Canvas({ setPalette, setCustomPalette }: CanvasProps) {
       let pX = Number(pX_s.match(/\d+/g)[0]);
       let pY = Number(pY_s.match(/\d+/g)[0]);
 
-      // testPalette.style.top = pY + POINTER_SIZE / 2 + "px";
-      // testPalette.style.left = pX + POINTER_SIZE / 2 + "px";
-      // document.querySelector("#cont_canvas").append(testPalette);
-
       let { data } = ctx.getImageData(
         pX + POINTER_SIZE / 2,
         pY + POINTER_SIZE / 2,
@@ -209,7 +253,7 @@ export default function Canvas({ setPalette, setCustomPalette }: CanvasProps) {
       setFlagActivePoint(false);
       setCustomPalette((cp) => {
         const updatedPalette = cp.map((el, idx) =>
-          idx == paletteIDX ? colorPicked : el,
+          idx == paletteIDX ? "rgb(" + colorPicked + ")" : el,
         );
         return updatedPalette;
       });
@@ -231,7 +275,7 @@ export default function Canvas({ setPalette, setCustomPalette }: CanvasProps) {
     };
   }, [flagActivePoint]);
 
-  function hoverEffect(e: MouseMove) {
+  function hoverEffect(e: MouseEvent) {
     if (buttonRef.current === null) return;
 
     const btnStyle = buttonRef.current.getBoundingClientRect();
@@ -245,64 +289,81 @@ export default function Canvas({ setPalette, setCustomPalette }: CanvasProps) {
     buttonRef.current.style.setProperty("--left", updateBackgroundX + "%");
   }
   return (
-    <div className="flex items-center">
-      <div>
-        <h1 className="text-foreground max-w-3xl pb-8 text-left text-6xl tracking-tight text-balance">
-          Visualize the colors from your favorite image
-        </h1>
+    <div className="">
+      <h1 className="text-foreground max-w-3xl pb-8 text-left text-4xl/9 tracking-tighter text-balance sm:text-5xl lg:text-6xl">
+        Visualize the colors from your favorite image
+      </h1>
 
-        <Button
-          type="primary"
-          onClick={linkingInput}
-          onMouseMove={(e) => hoverEffect(e)}
-          ref={buttonRef}
-          className="bg-radial-[at_var(--left)_var(--top)] from-[(--color-primary)/95] to-(--color-primary) to-50%"
-        >
-          Upload Image
-        </Button>
+      <Button
+        type="primary"
+        onClick={linkingInput}
+        onMouseMove={(e: MouseEvent) => hoverEffect(e)}
+        ref={buttonRef}
+        className="bg-radial-[at_var(--left)_var(--top)] from-[(--color-primary)/95] to-(--color-primary) to-50%"
+      >
+        Upload Image
+      </Button>
+
+      <div
+        className="relative mt-16"
+        onDrop={(e) => handleDrop(e)}
+        onDragOver={(e) => e.preventDefault()}
+        onDragStart={(e) => e.preventDefault()}
+      >
+        <input
+          type="file"
+          className="hidden"
+          accept="image/png, image/jpeg, image/jpg"
+          id="filePicture"
+          ref={inputRef}
+          onChange={handleFile}
+        />
 
         <div
-          className="relative mt-16"
-          onDrop={handleDrop}
-          onDragOver={(e) => e.preventDefault()}
-          onDragStart={(e) => e.preventDefault()}
+          className="relative flex w-fit flex-col gap-4 rounded-xl lg:flex-row"
+          id="cont_canvas"
         >
-          <input
-            type="file"
-            className="hidden"
-            accept="image/png, image/jpeg, image/jpg"
-            id="filePicture"
-            ref={inputRef}
-            onChange={(e) => handleFile(e)}
-          />
+          {picture &&
+            randomPoints.map(({ x, y, ref, color }, idx) => (
+              <div
+                id={"palette" + idx}
+                key={idx}
+                ref={ref}
+                className={`absolute z-100 grid cursor-grab place-content-center rounded-full border border-white text-xl text-white active:cursor-grabbing`}
+                style={{
+                  width: POINTER_SIZE + "px",
+                  height: POINTER_SIZE + "px",
+                  top: y - POINTER_SIZE / 2 + "px",
+                  left: x - POINTER_SIZE / 2 + "px",
+                  background: `rgb(${color})`,
+                }}
+              />
+            ))}
 
-          <div className="relative w-fit rounded-xl" id="cont_canvas">
-            {picture &&
-              randomPoints.map(({ x, y, ref, color }, idx) => (
-                <div
-                  id={"palette" + idx}
-                  key={idx}
-                  ref={ref}
-                  className={`absolute z-100 grid place-content-center rounded-full border border-white`}
-                  style={{
-                    width: POINTER_SIZE + "px",
-                    height: POINTER_SIZE + "px",
-                    bottom: y + "px",
-                    left: x + "px",
-                    background: `rgb(${color})`,
-                  }}
-                />
-              ))}
-            <canvas
-              ref={canvasRef}
-              className="border-border rounded-xl border"
-            ></canvas>
-            <canvas
-              className="absolute top-0 -right-12 z-50 rounded-xl border border-red-400"
-              ref={canvasColorRef}
-              width="48"
-              height="48"
-            />
+          <canvas
+            ref={canvasRef}
+            className="border-border rounded-xl border"
+          ></canvas>
+
+          <div className="bg-background border-border h-fit w-fit rounded-md border px-2 py-2">
+            <h3 className="text-muted-foreground font-mono text-xs/6 font-medium tracking-widest uppercase">
+              Color Picker
+            </h3>
+
+            <div className="flex items-center gap-2">
+              <canvas
+                className="border-border rounded-xl border"
+                ref={canvasColorRef}
+                width="48"
+                height="48"
+              />
+
+              <ul className="text-secondary-foreground flex min-w-10 flex-col gap-0.5 font-mono text-[10px] font-medium">
+                <li ref={rColorRef}> R:</li>
+                <li ref={gColorRef}> G:</li>
+                <li ref={bColorRef}> B:</li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>

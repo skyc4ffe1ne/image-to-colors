@@ -5,13 +5,8 @@ export interface ButtonProps {
   className?: string;
 }
 
-export interface Palette {
-  color: string;
-  repeat: number;
-}
-
 export interface PaletteProps {
-  palette: Palette[];
+  palette: string[];
   customPalette: string[];
 }
 
@@ -22,5 +17,6 @@ export interface ThemeProviderProps {
 }
 
 export interface CanvasProps {
-  setPalette: (p: Palette[]) => void;
+  setPalette: (p: string[]) => void;
+  setCustomPalette: (cp: string[]) => void;
 }

@@ -1,8 +1,8 @@
-export const handleOnLoad = function (
+export const handleOnLoad = function(
   canvas: HTMLCanvasElement,
   img: HTMLImageElement,
   ctx: CanvasRenderingContext2D,
-) {
+): string[] {
   const aspectRatio = img.width / img.height;
   const newWidth = canvas.width;
   const newHeight = canvas.width / aspectRatio;
@@ -13,7 +13,7 @@ export const handleOnLoad = function (
   //data return an Uint8ClampedArray, the value rappresent a rgba color ([26,49,90,255,26,49,90,255....])
   //rgba(26,49,90,255)
 
-  let colorPalette = {};
+  let colorPalette: Record<string, number> = {};
   for (let i = 0; i < data.length; i += 4) {
     const r = data[i];
     const g = data[i + 1];
@@ -33,18 +33,22 @@ export const handleOnLoad = function (
   let mostUsedColors = sortedColors.splice(0, 10);
 
   for (let i = 0; i < mostUsedColors.length; i++) {
-    mostUsedColors[i] = mostUsedColors[i].reduce((acc, el, idx) => {
-      return idx === 0 ? { ...acc, color: el } : { ...acc, repeat: el };
-    }, {});
+    // Only string rbg
+    mostUsedColors[i] = mostUsedColors[i][0];
+
+    // Object {color:"rbg(...)",repeat:102 }
+    // mostUsedColors[i] = mostUsedColors[i].reduce((acc, el, idx) => {
+    //   return idx === 0 ? { ...acc, color: el } : { ...acc, repeat: el };
+    // },{});
   }
   return mostUsedColors;
 };
 
-const roundColorValue = function (value: number, interval: number): number {
+const roundColorValue = function(value: number, interval: number): number {
   return Math.floor(value / interval) * interval;
 };
 
-const approximateColor = function (
+const approximateColor = function(
   r: number,
   g: number,
   b: number,
