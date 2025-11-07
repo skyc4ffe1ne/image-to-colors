@@ -25,6 +25,8 @@ export default function Canvas({ setPalette, setCustomPalette }: CanvasProps) {
   let pickedColorRef_3 = useRef<null | HTMLDivElement>(null);
   let pickedColorRef_4 = useRef<null | HTMLDivElement>(null);
 
+  let buttonRef = useRef<null | HTMLButtonElement>(null);
+
   // Using the on click on the button,
   // instead of the label/input file.
   function linkingInput() {
@@ -229,14 +231,33 @@ export default function Canvas({ setPalette, setCustomPalette }: CanvasProps) {
     };
   }, [flagActivePoint]);
 
+  function hoverEffect(e: MouseMove) {
+    if (buttonRef.current === null) return;
+
+    const btnStyle = buttonRef.current.getBoundingClientRect();
+
+    const updateBackgroundY =
+      ((e.clientY - btnStyle.top) * 100) / btnStyle.height;
+    const updateBackgroundX =
+      ((e.clientX - btnStyle.left) * 100) / btnStyle.width;
+
+    buttonRef.current.style.setProperty("--top", updateBackgroundY + "%");
+    buttonRef.current.style.setProperty("--left", updateBackgroundX + "%");
+  }
   return (
     <div className="flex items-center">
       <div>
-        <h1 className="text-foreground text-6xl pb-8 text-left text-balance max-w-3xl tracking-tight">
+        <h1 className="text-foreground max-w-3xl pb-8 text-left text-6xl tracking-tight text-balance">
           Visualize the colors from your favorite image
         </h1>
 
-        <Button type="primary" onClick={linkingInput}>
+        <Button
+          type="primary"
+          onClick={linkingInput}
+          onMouseMove={(e) => hoverEffect(e)}
+          ref={buttonRef}
+          className="bg-radial-[at_var(--left)_var(--top)] from-[(--color-primary)/95] to-(--color-primary) to-50%"
+        >
           Upload Image
         </Button>
 
@@ -255,14 +276,14 @@ export default function Canvas({ setPalette, setCustomPalette }: CanvasProps) {
             onChange={(e) => handleFile(e)}
           />
 
-          <div className="w-fit rounded-xl relative" id="cont_canvas">
+          <div className="relative w-fit rounded-xl" id="cont_canvas">
             {picture &&
               randomPoints.map(({ x, y, ref, color }, idx) => (
                 <div
                   id={"palette" + idx}
                   key={idx}
                   ref={ref}
-                  className={`absolute z-100 rounded-full grid border border-white place-content-center `}
+                  className={`absolute z-100 grid place-content-center rounded-full border border-white`}
                   style={{
                     width: POINTER_SIZE + "px",
                     height: POINTER_SIZE + "px",
@@ -274,10 +295,10 @@ export default function Canvas({ setPalette, setCustomPalette }: CanvasProps) {
               ))}
             <canvas
               ref={canvasRef}
-              className="border border-border rounded-xl"
+              className="border-border rounded-xl border"
             ></canvas>
             <canvas
-              className="absolute top-0 -right-12 border border-red-400 z-50 rounded-xl"
+              className="absolute top-0 -right-12 z-50 rounded-xl border border-red-400"
               ref={canvasColorRef}
               width="48"
               height="48"

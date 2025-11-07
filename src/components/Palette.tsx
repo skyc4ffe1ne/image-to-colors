@@ -1,44 +1,99 @@
+import { Copy, Check } from "./icons.tsx";
+import { useState, useEffect } from "react";
 import type { PaletteProps } from "../lib/types";
 import Button from "./Button";
 
-function Copy(props: React.SVGProps<SVGSVGElement>) {
+function ButtonCopy({ paletteType, palette, customPalette }) {
+  const [copy, setCopy] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (copy === false) return;
+    const timeoutID = setTimeout(() => {
+      setCopy(false);
+    }, 1000);
+    return () => {
+      clearTimeout(timeoutID);
+    };
+  }, [copy]);
+
+  async function handleCopy(type: "primary" | "secondary" | "custom"): void {
+    let paletteString;
+    switch (type) {
+      case "primary":
+        paletteString = palette.toSpliced(0, 5).join("\n");
+        break;
+
+      case "secondary":
+        paletteString = palette.toSpliced(5).join("\n");
+        break;
+
+      case "custom":
+        paletteString = customPalette.join("\n");
+        break;
+    }
+
+    try {
+      await navigator.clipboard.writeText(paletteString);
+      setCopy(true);
+    } catch (error) {
+      setCopy(false);
+      console.error(error.message);
+    }
+  }
+
   return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      width="24"
-      height="24"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      {...props}
+    <Button
+      type="inherit"
+      size="icon"
+      className="hover:bg-background/90 transition-[scale] duration-150 ease-in active:scale-90"
+      onClick={() => handleCopy(paletteType)}
     >
-      <rect width="14" height="14" x="8" y="8" rx="2" ry="2" />
-      <path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2" />
-    </svg>
+      {copy ? (
+        <Check className="size-5 scale-100 opacity-100 blur-none transition-[opacity,transform,filter] duration-300 ease-out starting:scale-75 starting:opacity-0 starting:blur-sm" />
+      ) : (
+        <Copy className="size-5 scale-100 blur-none transition-[opacity,transform,filter] duration-300 ease-out starting:scale-75 starting:opacity-0 starting:blur-sm" />
+      )}
+    </Button>
   );
 }
 
 export default function Palette({ palette, customPalette }: PaletteProps) {
+  console.log("palette:", palette);
+
+  async function handleSingleCopy(color: string) {
+    try {
+      await navigator.clipboard.writeText(color);
+      setCopy(true);
+    } catch (error) {
+      setCopy(false);
+      console.error(error.message);
+    }
+  }
   return (
-    <div className="flex flex-col">
-      <div className="mb-8 border p-4 border-border rounded-xl bg-secondary text-secondary-foreground w-fit">
-        <header className="mb-4 flex justify-between items-center">
-          <h3 className="text-2xl "> Primary Colors</h3>
-          <Button type="inherit" size="icon">
-            <Copy className="size-5" />
-          </Button>
+    <div className="grid grid-cols-[repeat(auto-fill,minmax(0,402px))] gap-x-4 xl:grid-cols-1 xl:gap-x-0">
+      <div className="border-border bg-secondary text-secondary-foreground mb-8 w-fit rounded-xl border p-4">
+        <header className="mb-4 flex items-center justify-between">
+          <h3 className="text-2xl"> Primary Colors</h3>
+          <ButtonCopy
+            paletteType="primary"
+            palette={palette}
+            customPalette={customPalette}
+          />
         </header>
-        <div className="flex gap-4 bg-background/30 shadow-sm px-8 py-4 rounded-2xl">
+        <div className="bg-background/30 flex gap-4 rounded-2xl px-8 py-4 shadow-sm">
           {palette.map((el, i) =>
             i < 5 ? (
               <div
                 key={i}
                 style={{ backgroundColor: el.color }}
-                className="rounded-full size-12 inset-ring inset-ring-white/10"
-              ></div>
+                className="group relative size-12 rounded-full inset-ring inset-ring-white/10"
+                onClick={() => handleSingleCopy(el.color)}
+              >
+                <p className="bg-background/5 absolute -top-7 left-1/2 z-100 hidden -translate-x-1/2 rounded-md px-2 py-1 font-mono text-xs whitespace-nowrap shadow-md transition-all duration-100 ease-in group-hover:block starting:-top-4 starting:opacity-0">
+                  {el.color}
+                </p>
+                <Copy className="absolute top-1/2 left-1/2 z-100 hidden size-5 -translate-x-1/2 -translate-y-1/2 scale-100 opacity-100 invert-100 transition-[scale,opacity] duration-75 ease-in group-hover:block starting:scale-75 starting:opacity-0" />
+              </div>
             ) : (
               ""
             ),
@@ -46,20 +101,22 @@ export default function Palette({ palette, customPalette }: PaletteProps) {
         </div>
       </div>
 
-      <div className="mb-8 border p-4 border-border rounded-xl bg-secondary text-secondary-foreground w-fit">
-        <header className="mb-4 flex justify-between items-center">
-          <h3 className="text-2xl "> Secondary Colors</h3>
-          <Button type="inherit" size="icon">
-            <Copy className="size-5" />
-          </Button>
+      <div className="border-border bg-secondary text-secondary-foreground mb-8 w-fit rounded-xl border p-4">
+        <header className="mb-4 flex items-center justify-between">
+          <h3 className="text-2xl"> Secondary Colors</h3>
+          <ButtonCopy
+            paletteType="secondary"
+            palette={palette}
+            customPalette={customPalette}
+          />
         </header>
-        <div className="flex gap-4 bg-background/30  shadow-sm px-8 py-4 rounded-2xl ">
+        <div className="bg-background/30 flex gap-4 rounded-2xl px-8 py-4 shadow-sm">
           {palette.map((el, i) =>
             i >= 5 ? (
               <div
                 key={i}
                 style={{ backgroundColor: el.color }}
-                className="rounded-full size-12 inset-ring inset-ring-white/10"
+                className="group relative size-12 rounded-full inset-ring inset-ring-white/10"
               ></div>
             ) : (
               ""
@@ -68,19 +125,21 @@ export default function Palette({ palette, customPalette }: PaletteProps) {
         </div>
       </div>
 
-      <div className="mb-8 border p-4 border-border rounded-xl bg-secondary text-secondary-foreground w-fit">
-        <header className="mb-4 flex justify-between items-center">
-          <h3 className="text-2xl "> Custom colors</h3>
-          <Button type="inherit" size="icon">
-            <Copy className="size-5" />
-          </Button>
+      <div className="border-border bg-secondary text-secondary-foreground mb-8 w-fit rounded-xl border p-4">
+        <header className="mb-4 flex items-center justify-between">
+          <h3 className="text-2xl"> Custom colors</h3>
+          <ButtonCopy
+            paletteType="custom"
+            palette={palette}
+            customPalette={customPalette}
+          />
         </header>
-        <div className="flex gap-4 bg-background/30 shadow-sm px-8 py-4 rounded-2xl ">
+        <div className="bg-background/30 flex gap-4 rounded-2xl px-8 py-4 shadow-sm">
           {customPalette.map((el, i) => (
             <div
               key={i}
               style={{ backgroundColor: `rgb(${el})` }}
-              className="rounded-full size-12 inset-ring inset-ring-white/10"
+              className="size-12 rounded-full inset-ring inset-ring-white/10"
             ></div>
           ))}
         </div>

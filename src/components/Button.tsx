@@ -22,7 +22,7 @@ export default function Button({
     size: {
       base: "py-2 px-5 rounded-full h-[48px] sm:px-6 font-medium  text-lg ",
       sm: "px-3 tracking-tight min-h-8 rounded-lg ",
-      icon: "py-2 px-3 ",
+      icon: "py-2 px-3 rounded-lg ",
     },
   };
 

@@ -1,4 +1,4 @@
-export const handleOnLoad = function(
+export const handleOnLoad = function (
   canvas: HTMLCanvasElement,
   img: HTMLImageElement,
   ctx: CanvasRenderingContext2D,
@@ -37,16 +37,14 @@ export const handleOnLoad = function(
       return idx === 0 ? { ...acc, color: el } : { ...acc, repeat: el };
     }, {});
   }
-
-  console.log("mostUsedColors:", mostUsedColors);
   return mostUsedColors;
 };
 
-const roundColorValue = function(value: number, interval: number): number {
+const roundColorValue = function (value: number, interval: number): number {
   return Math.floor(value / interval) * interval;
 };
 
-const approximateColor = function(
+const approximateColor = function (
   r: number,
   g: number,
   b: number,
