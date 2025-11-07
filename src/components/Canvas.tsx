@@ -151,6 +151,15 @@ export default function Canvas({ setPalette, setCustomPalette }: CanvasProps) {
     };
   }, []);
 
+  // const testPalette = document.createElement("div");
+  //
+  // testPalette.style.position = "absolute";
+  // testPalette.style.zIndex = "999";
+  // testPalette.style.background = "blue";
+  // testPalette.style.width = "1px";
+  // testPalette.style.height = "1px";
+  // testPalette.classList.add("testPalette");
+
   useEffect(() => {
     if (
       canvasRef.current === null ||
@@ -181,9 +190,13 @@ export default function Canvas({ setPalette, setCustomPalette }: CanvasProps) {
       let pX = Number(pX_s.match(/\d+/g)[0]);
       let pY = Number(pY_s.match(/\d+/g)[0]);
 
+      // testPalette.style.top = pY + POINTER_SIZE / 2 + "px";
+      // testPalette.style.left = pX + POINTER_SIZE / 2 + "px";
+      // document.querySelector("#cont_canvas").append(testPalette);
+
       let { data } = ctx.getImageData(
-        pX + POINTER_SIZE,
-        pY + POINTER_SIZE,
+        pX + POINTER_SIZE / 2,
+        pY + POINTER_SIZE / 2,
         1,
         1,
       );
