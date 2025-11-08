@@ -1,9 +1,13 @@
 import { Copy, Check } from "./icons.tsx";
 import { useState, useEffect } from "react";
-import type { PaletteProps } from "../lib/types";
+import type {
+  PaletteProps,
+  PaletteSectionProps,
+  ButtonCopyProps,
+} from "../lib/types";
 import Button from "./Button";
 
-function ButtonCopy({ paletteType, palette }) {
+function ButtonCopy({ paletteType, palette }: ButtonCopyProps) {
   const [copy, setCopy] = useState<boolean>(false);
 
   useEffect(() => {
@@ -16,15 +20,15 @@ function ButtonCopy({ paletteType, palette }) {
     };
   }, [copy]);
 
-  async function handleCopy(type: "primary" | "secondary" | "custom"): void {
+  async function handleCopy(type: "primary" | "secondary" | "custom") {
     let paletteString;
     switch (type) {
       case "primary":
-        paletteString = palette.toSpliced(0, 5).join("\n");
+        paletteString = palette.splice(0, 5).join("\n");
         break;
 
       case "secondary":
-        paletteString = palette.toSpliced(5).join("\n");
+        paletteString = palette.splice(5).join("\n");
         break;
 
       case "custom":
@@ -37,13 +41,15 @@ function ButtonCopy({ paletteType, palette }) {
       setCopy(true);
     } catch (error) {
       setCopy(false);
-      console.error(error.message);
+      if (error instanceof Error) {
+        console.error(error.message);
+      }
     }
   }
 
   return (
     <Button
-      type="inherit"
+      variant="inherit"
       size="icon"
       className="hover:bg-background/90 transition-[scale] duration-150 ease-in active:scale-90"
       onClick={() => handleCopy(paletteType)}
@@ -57,7 +63,12 @@ function ButtonCopy({ paletteType, palette }) {
   );
 }
 
-function PaletteSection({ title, palette, handleSingleCopy, paletteType }) {
+function PaletteSection({
+  title,
+  palette,
+  handleSingleCopy,
+  paletteType,
+}: PaletteSectionProps) {
   return (
     <div className="border-border bg-secondary text-secondary-foreground mb-8 w-fit rounded-xl border p-2 sm:p-4">
       <header className="mb-2 flex items-center justify-between sm:mb-4">
@@ -84,15 +95,13 @@ function PaletteSection({ title, palette, handleSingleCopy, paletteType }) {
 }
 
 export default function Palette({ palette, customPalette }: PaletteProps) {
-  const [singleCopy, setSingleCopy] = useState<boolean>(false);
-
   async function handleSingleCopy(color: string) {
     try {
       await navigator.clipboard.writeText(color);
-      setSingleCopy(true);
     } catch (error) {
-      console.error(error.message);
-      setSingleCopy(false);
+      if (error instanceof Error) {
+        console.error(error.message);
+      }
     }
   }
   return (

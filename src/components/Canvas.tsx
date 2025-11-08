@@ -48,7 +48,6 @@ export default function Canvas({ setPalette, setCustomPalette }: CanvasProps) {
     if (inputRef.current === null) return;
     const input = inputRef.current;
 
-    console.log("input__files:", input.files);
     if (!input || !input.files || !input.files.length) return;
     setPicture(input.files[0]);
   }
@@ -119,11 +118,12 @@ export default function Canvas({ setPalette, setCustomPalette }: CanvasProps) {
 
     function createCustomPalette() {
       let randomPoints = Array.from({ length: 5 }, (_, idx) => {
+        const pointIDX = idx as 0 | 1 | 2 | 3 | 4;
         // Avoid that the circle can go out - only the half of it can go outside.
         // Because the maximum color that we can took is the middle of the pointer.
         let pX = Math.floor(Math.random() * (canvas.width - POINTER_SIZE / 2));
         let pY = Math.floor(Math.random() * (canvas.height - POINTER_SIZE / 2));
-        let choosedRef = chooseRef(idx);
+        let choosedRef = chooseRef(pointIDX);
         let { data } = ctx.getImageData(pX, pY, 1, 1);
         const onlyRGB = data.slice(0, 3);
         let color = onlyRGB.join(",");
@@ -146,10 +146,11 @@ export default function Canvas({ setPalette, setCustomPalette }: CanvasProps) {
 
   useEffect(() => {
     function activePoint(e: MouseEvent) {
-      if (e.target && e.target.id && e.target.id.match("palette")) {
+      const target = e.target as HTMLDivElement;
+      if (target && target.id && target.id.match("palette")) {
         // Remove the previous one
         document.querySelector(".active")?.classList.remove("active");
-        const activePointID = e.target.id;
+        const activePointID = target.id;
         document.querySelector("#" + activePointID)?.classList.add("active");
         setFlagActivePoint(true);
       }
@@ -170,7 +171,7 @@ export default function Canvas({ setPalette, setCustomPalette }: CanvasProps) {
       return;
     const canvas = canvasRef.current;
     const ctx = ctxRef.current;
-    const activePointer = document.querySelector(".active");
+    const activePointer = document.querySelector(".active") as HTMLDivElement;
 
     function handleMovement(e: MouseEvent) {
       const pX = e.offsetX;
@@ -180,7 +181,13 @@ export default function Canvas({ setPalette, setCustomPalette }: CanvasProps) {
     }
 
     function pickColor(e: MouseEvent) {
-      if (canvasColorRef.current === null || ctxColorRef.current === null)
+      if (
+        canvasColorRef.current === null ||
+        ctxColorRef.current === null ||
+        rColorRef.current === null ||
+        gColorRef.current === null ||
+        bColorRef.current === null
+      )
         return;
       const ctxColor = ctxColorRef.current;
       let pX = e.offsetX;
@@ -198,9 +205,6 @@ export default function Canvas({ setPalette, setCustomPalette }: CanvasProps) {
         1,
         1,
       );
-      const onlyRGB = rgba.slice(0, 3);
-      const colorPicked = onlyRGB.join(",");
-
       rColorRef.current.textContent = "R:" + rgba[0];
       gColorRef.current.textContent = "B:" + rgba[1];
       bColorRef.current.textContent = "G:" + rgba[2];
@@ -232,13 +236,19 @@ export default function Canvas({ setPalette, setCustomPalette }: CanvasProps) {
     // get the color from the image
     // update teh colorPalette
     // and the pointer background
-    function handleStop(e) {
+    function handleStop() {
       let activePointStyle = window.getComputedStyle(activePointer);
 
       let pX_s = activePointStyle.getPropertyValue("left");
       let pY_s = activePointStyle.getPropertyValue("top");
-      let pX = Number(pX_s.match(/\d+/g)[0]);
-      let pY = Number(pY_s.match(/\d+/g)[0]);
+
+      let getPX = pX_s.match(/\d+/g);
+      let getPY = pY_s.match(/\d+/g);
+
+      if (getPX === null || getPY === null) return;
+
+      let pX = Number(getPX[0]);
+      let pY = Number(getPY[0]);
 
       let { data } = ctx.getImageData(
         pX + POINTER_SIZE / 2,
@@ -248,19 +258,21 @@ export default function Canvas({ setPalette, setCustomPalette }: CanvasProps) {
       );
       const onlyRGB = data.slice(0, 3);
       const colorPicked = onlyRGB.join(",");
-      let paletteID = activePointer.id;
-      let paletteIDX = paletteID.at(-1);
+      let getPaletteID = activePointer.id;
+
+      let paletteID = getPaletteID.at(-1);
+      let paletteIDX = Number(paletteID);
       setFlagActivePoint(false);
       setCustomPalette((cp) => {
         const updatedPalette = cp.map((el, idx) =>
-          idx == paletteIDX ? "rgb(" + colorPicked + ")" : el,
+          idx === paletteIDX ? "rgb(" + colorPicked + ")" : el,
         );
         return updatedPalette;
       });
 
       setRandomPoints((rp) => {
         const updatedPoints = rp.map((el, idx) =>
-          idx == paletteIDX ? { ...el, color: onlyRGB } : el,
+          idx === paletteIDX ? { ...el, color: colorPicked } : el,
         );
         return updatedPoints;
       });
@@ -275,7 +287,7 @@ export default function Canvas({ setPalette, setCustomPalette }: CanvasProps) {
     };
   }, [flagActivePoint]);
 
-  function hoverEffect(e: MouseEvent) {
+  function hoverEffect(e: React.MouseEvent) {
     if (buttonRef.current === null) return;
 
     const btnStyle = buttonRef.current.getBoundingClientRect();
@@ -295,9 +307,9 @@ export default function Canvas({ setPalette, setCustomPalette }: CanvasProps) {
       </h1>
 
       <Button
-        type="primary"
+        variant="primary"
         onClick={linkingInput}
-        onMouseMove={(e: MouseEvent) => hoverEffect(e)}
+        onMouseMove={(e: React.MouseEvent) => hoverEffect(e)}
         ref={buttonRef}
         className="bg-radial-[at_var(--left)_var(--top)] from-[(--color-primary)/95] to-(--color-primary) to-50%"
       >

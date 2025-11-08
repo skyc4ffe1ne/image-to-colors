@@ -2,7 +2,7 @@ import type { ButtonProps } from "../lib/types.ts";
 
 export default function Button({
   children,
-  type = "inherit",
+  variant = "inherit",
   size = "base",
   className = "",
   ...props
@@ -11,7 +11,7 @@ export default function Button({
     "disabled:pointer-events-none disabled:opacity-50 focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px] cursor-pointer outline-none ";
 
   const styleButton = {
-    variant: {
+    variants: {
       primary: "bg-primary text-primary-foreground hover:bg-primary/80 ",
       secondary:
         "bg-secondary text-secondary-foreground hover:bg-secondary/90 ",
@@ -29,7 +29,7 @@ export default function Button({
   return (
     <button
       className={
-        d + styleButton.variant[type] + styleButton.size[size] + className
+        d + styleButton.variants[variant] + styleButton.size[size] + className
       }
       {...props}
     >

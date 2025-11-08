@@ -1,6 +1,7 @@
-export interface ButtonProps {
+export interface ButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   children: React.ReactNode;
-  type: "primary" | "secondary" | "accent" | "link" | "inherit";
+  variant: "primary" | "secondary" | "accent" | "link" | "inherit";
   size?: "base" | "sm" | "icon";
   className?: string;
 }
@@ -18,5 +19,17 @@ export interface ThemeProviderProps {
 
 export interface CanvasProps {
   setPalette: (p: string[]) => void;
-  setCustomPalette: (cp: string[]) => void;
+  setCustomPalette: React.Dispatch<React.SetStateAction<string[]>>;
+}
+
+export interface ButtonCopyProps {
+  paletteType: "primary" | "secondary" | "custom";
+  palette: string[];
+}
+
+export interface PaletteSectionProps {
+  title: "Primary Colors" | "Secondary Colors" | "Custom Colors";
+  palette: string[];
+  handleSingleCopy: (c: string) => Promise<void>;
+  paletteType: "primary" | "secondary" | "custom";
 }

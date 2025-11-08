@@ -30,18 +30,19 @@ export const handleOnLoad = function(
   const sortedColors = Object.entries(colorPalette).sort((a, b) => b[1] - a[1]);
   //Object.entries -> ["rgb(0,0,0)", "832"] sort only the first index
 
-  let mostUsedColors = sortedColors.splice(0, 10);
+  let mostUsedColors: [string, number][] = sortedColors.splice(0, 10);
 
+  let onlyRGB: string[] = [];
   for (let i = 0; i < mostUsedColors.length; i++) {
     // Only string rbg
-    mostUsedColors[i] = mostUsedColors[i][0];
+    onlyRGB[i] = mostUsedColors[i][0];
 
     // Object {color:"rbg(...)",repeat:102 }
     // mostUsedColors[i] = mostUsedColors[i].reduce((acc, el, idx) => {
     //   return idx === 0 ? { ...acc, color: el } : { ...acc, repeat: el };
     // },{});
   }
-  return mostUsedColors;
+  return onlyRGB;
 };
 
 const roundColorValue = function(value: number, interval: number): number {
