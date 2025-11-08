@@ -5,6 +5,7 @@ export default function Button({
   variant = "inherit",
   size = "base",
   className = "",
+  ref,
   ...props
 }: ButtonProps) {
   const d =

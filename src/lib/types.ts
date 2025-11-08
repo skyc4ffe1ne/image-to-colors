@@ -4,6 +4,7 @@ export interface ButtonProps
   variant: "primary" | "secondary" | "accent" | "link" | "inherit";
   size?: "base" | "sm" | "icon";
   className?: string;
+  ref?: React.Ref<HTMLButtonElement>;
 }
 
 export interface PaletteProps {

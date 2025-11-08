@@ -53,7 +53,7 @@ export default function Canvas({ setPalette, setCustomPalette }: CanvasProps) {
   }
 
   function handleDrop(e: React.DragEvent<HTMLDivElement>) {
-    setPicture((p) => (p = e.dataTransfer.files[0]));
+    setPicture(e.dataTransfer.files[0]);
   }
 
   ////////////////////////
