@@ -286,7 +286,7 @@ export default function Canvas({ setPalette, setCustomPalette }: CanvasProps) {
       });
     }
 
-    function animateEverything() { }
+    // function animateEverything() { }
 
     // requestRef.current = window.requestAnimationFrame(animateEverything);
     canvas.addEventListener("mousemove", handleMovement); // !!!
