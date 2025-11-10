@@ -26,8 +26,12 @@
 - [x] Hover effect only highlight the part of the button
       i'm with the piinter on it
 
-- [ ] Placeholder canvasColorPalette
+- [x] Placeholder canvasColorPalette
+- [ ] Add border black and white on pointer (colorpicker)
+- [ ] Aspect ratio image (max-height and max-width)
 
 ---
 
-- Should i use requestAnimationFrame???
+- [ ] Add requestAnimationFrame
+  - [ ] Pointer realtime
+  - [ ] Palette customCOlor realtime

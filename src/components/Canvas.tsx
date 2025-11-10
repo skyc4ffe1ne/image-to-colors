@@ -2,6 +2,7 @@ import type { CanvasProps } from "../lib/types";
 import { useState, useRef, useEffect } from "react";
 import { handleOnLoad } from ".././utils/handleOnLoad";
 import Button from "./Button";
+import { PlaceholderImage } from "./icons";
 
 const POINTER_SIZE = 48;
 
@@ -36,6 +37,8 @@ export default function Canvas({ setPalette, setCustomPalette }: CanvasProps) {
   let bColorRef = useRef<null | HTMLLIElement>(null);
 
   let buttonRef = useRef<null | HTMLButtonElement>(null);
+
+  let requestRef = useRef<null | number>(null);
 
   // Using the on click on the button,
   // instead of the label/input file.
@@ -111,11 +114,6 @@ export default function Canvas({ setPalette, setCustomPalette }: CanvasProps) {
 
     const canvas = canvasRef.current;
     const ctx = ctxRef.current;
-    canvas.width = 700;
-    ctx.font = "24px sans-serif";
-    ctx.fillStyle = "var(--foreground)";
-    ctx.fillText("Drop Image", 280, 75);
-
     function createCustomPalette() {
       let randomPoints = Array.from({ length: 5 }, (_, idx) => {
         const pointIDX = idx as 0 | 1 | 2 | 3 | 4;
@@ -173,11 +171,21 @@ export default function Canvas({ setPalette, setCustomPalette }: CanvasProps) {
     const ctx = ctxRef.current;
     const activePointer = document.querySelector(".active") as HTMLDivElement;
 
+    // Should i use state instaed of ref?
     function handleMovement(e: MouseEvent) {
       const pX = e.offsetX;
       const pY = e.offsetY;
+      let { data } = ctx.getImageData(
+        pX + POINTER_SIZE / 2,
+        pY + POINTER_SIZE / 2,
+        1,
+        1,
+      );
+      const onlyRGB = data.slice(0, 3);
+      const colorPicked = onlyRGB.join(",");
       activePointer.style.left = pX - POINTER_SIZE / 2 + "px";
       activePointer.style.top = pY - POINTER_SIZE / 2 + "px";
+      activePointer.style.background = `rgb(${colorPicked})`;
     }
 
     function pickColor(e: MouseEvent) {
@@ -277,15 +285,22 @@ export default function Canvas({ setPalette, setCustomPalette }: CanvasProps) {
         return updatedPoints;
       });
     }
-    canvas.addEventListener("mousemove", handleMovement);
-    canvas.addEventListener("mousemove", pickColor);
+
+    function animateEverything() { }
+
+    // requestRef.current = window.requestAnimationFrame(animateEverything);
+    canvas.addEventListener("mousemove", handleMovement); // !!!
+    canvas.addEventListener("mousemove", pickColor); // !!!
     window.addEventListener("mouseup", handleStop);
     return () => {
       canvas.removeEventListener("mousemove", pickColor);
       canvas.removeEventListener("mousemove", handleMovement);
+      // if (requestRef.current !== null) {
+      //   cancelAnimationFrame(requestRef.current);
+      // }
       window.removeEventListener("mouseup", handleStop);
     };
-  }, [flagActivePoint]);
+  }, [flagActivePoint, requestRef]);
 
   function hoverEffect(e: React.MouseEvent) {
     if (buttonRef.current === null) return;
@@ -305,7 +320,6 @@ export default function Canvas({ setPalette, setCustomPalette }: CanvasProps) {
       <h1 className="text-foreground max-w-3xl pb-8 text-left text-4xl/9 tracking-tighter text-balance sm:text-5xl lg:text-6xl">
         Visualize the colors from your favorite image
       </h1>
-
       <Button
         variant="primary"
         onClick={linkingInput}
@@ -341,7 +355,7 @@ export default function Canvas({ setPalette, setCustomPalette }: CanvasProps) {
                 id={"palette" + idx}
                 key={idx}
                 ref={ref}
-                className={`absolute z-100 grid cursor-grab place-content-center rounded-full border border-white text-xl text-white active:cursor-grabbing`}
+                className={`outiline absolute z-100 grid cursor-grab place-content-center rounded-full border border-white text-xl text-white outline-black active:cursor-grabbing`}
                 style={{
                   width: POINTER_SIZE + "px",
                   height: POINTER_SIZE + "px",
@@ -354,9 +368,14 @@ export default function Canvas({ setPalette, setCustomPalette }: CanvasProps) {
 
           <canvas
             ref={canvasRef}
-            className="border-border rounded-xl border"
+            width="700"
+            height="200"
+            className="border-border bg-secondary rounded-xl border"
           ></canvas>
 
+          {!picture && (
+            <PlaceholderImage className="absolute top-1/2 left-1/2 -translate-x-3/4 -translate-y-1/2" />
+          )}
           <div className="bg-background border-border h-fit w-fit rounded-md border px-2 py-2">
             <h3 className="text-muted-foreground font-mono text-xs/6 font-medium tracking-widest uppercase">
               Color Picker
